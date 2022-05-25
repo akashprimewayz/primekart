@@ -28,7 +28,8 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	private int quantity;
 	private Long order;
 	private String promoCode;
-	
+	private String txnId;
+
 	List<ReadableShoppingCartItem> products = new ArrayList<ReadableShoppingCartItem>();
 	List<ReadableOrderTotal> totals;
 	
@@ -166,5 +167,13 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 
 
 
+	public String getTxnId() {
+		return txnId;
+	}
 
+
+
+	public void setTxnId(String txnId) {
+		this.txnId = txnId;
+	}
 }

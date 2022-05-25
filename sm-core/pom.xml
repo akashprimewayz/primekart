@@ -198,7 +198,35 @@
 			<groupId>com.stripe</groupId>
 			<artifactId>stripe-java</artifactId>
 		</dependency>
-
+		
+		<!-- Paytm -->
+		<dependency>
+		        <groupId>com.paytm.pg</groupId>
+		        <artifactId>paytm-pg</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+	                <exclusion>
+	                    <groupId>org.hibernate</groupId>
+	                    <artifactId>hibernate-validator</artifactId>
+	                </exclusion>				
+			</exclusions>    
+		</dependency>
+		
+			<dependency>
+			    <groupId>com.paytm</groupId>
+			    <artifactId>paytm-checksum</artifactId>
+			    <version>1.2.0</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>com.paytm</groupId>
+			    <artifactId>paytm-checksum</artifactId>
+			    <version>1.2.0</version>
+			</dependency>			
+					
 		<!-- Braintree -->
 		<dependency>
 			<groupId>com.braintreepayments.gateway</groupId>

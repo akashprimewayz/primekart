@@ -25,6 +25,8 @@
 		<beans:entry key="ups" value-ref="ups" />
 		<beans:entry key="weightBased" value-ref="weightBased" />
 		<beans:entry key="storePickUp" value-ref="storePickUp" />
+		<beans:entry key="shiprocket" value-ref="shiprocket" />
+		
 		<!-- Requires google maps shippingDistancePreProcessor.apiKey=<YOUR KEY> 
 			in configs.properties -->
 		<beans:entry key="priceByDistance" value-ref="priceByDistance" />
@@ -50,6 +52,7 @@
 		<beans:entry key="stripe" value-ref="stripe" />
 		<beans:entry key="stripe3" value-ref="stripe3" />
 		<beans:entry key="braintree" value-ref="braintree" />
+		<beans:entry key="paytm" value-ref="paytm" />
 	</util:map>
 
 	<!-- Shipping -->
@@ -66,6 +69,8 @@
 		class="com.salesmanager.core.business.modules.integration.shipping.impl.StorePickupShippingQuote" />
 	<beans:bean id="customShippingPriceModule"
 		class="com.salesmanager.core.business.modules.integration.shipping.impl.CustomShippingQuoteRules" />
+	<beans:bean id="shiprocket"
+		class="com.salesmanager.core.business.modules.integration.shipping.impl.ShiprocketShippingQuote" />
 
 
 	<!--Default packaging -->
@@ -85,7 +90,8 @@
 		class="com.salesmanager.core.business.modules.integration.payment.impl.Stripe3Payment" />
 	<beans:bean id="braintree"
 		class="com.salesmanager.core.business.modules.integration.payment.impl.BraintreePayment" />
-
+	<beans:bean id="paytm"
+		class="com.salesmanager.core.business.modules.integration.payment.impl.PaytmPayment" />
 
 
 	<!--Encryption -->
