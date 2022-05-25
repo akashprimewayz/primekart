@@ -29,6 +29,16 @@
 	},
 	{
 		"module": "SHIPPING",
+		"code": "shiprocket",
+		"version":"",
+		"regions": ["*"],
+		"image":"ups.jpg",
+		"configuration":[{"env":"TEST","scheme":"https","host":"wwwcie.ups.com","port":"443","uri":"/ups.app/xml/Rate"},{"env":"PROD","scheme":"https","host":"onlinetools.ups.com","port":"443","uri":"/xml/Rate"}],
+		"details":{"01":"UPS Next Day Air","02":"UPS Second Day Air","03":"UPS Ground","07":"UPS Worldwide Express","08":"UPS Worldwide Expedited","11":"UPS Standard","12":"UPS Three-Day Select","13":"UPS Next Day Air Saver","14":"UPS Next Day Air Early A.M.","54":"UPS Worldwide Express Plus","59":"UPS Second Day Air A.M.","69":"UPS Saver"}
+
+	},	
+	{
+		"module": "SHIPPING",
 		"code": "weightBased",
 		"customModule":"true",
 		"version":"1.0",
@@ -95,6 +105,16 @@
 
 	},
 
+	{
+		"module": "PAYMENT",
+		"code": "paytm",
+		"type":"creditcard",
+		"version":"",
+		"regions": ["*"],
+		"image":"paytm.jpg",
+		"configuration":[{"env":"TEST","scheme":"https","host":"https://securegw-stage.paytm.in","port":"443","uri":"/"},{"env":"PROD","scheme":"https","host":"https://securegw-stage.paytm.in","port":"443","uri":"/"}]
+
+	},
 	{
 		"module": "PAYMENT",
 		"code": "stripe3",

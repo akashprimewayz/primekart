@@ -277,6 +277,8 @@ public class ShippingConfigurationApi {
 			integrationConfiguration.setDefaultSelected(configuration.isDefaultSelected());
 			integrationConfiguration.setIntegrationKeys(configuration.getIntegrationKeys());
 			integrationConfiguration.setIntegrationOptions(configuration.getIntegrationOptions());
+			//added by AKASH for Shipping module not working from admin
+			integrationConfiguration.setModuleCode(configuration.getCode());
 
 			shippingService.saveShippingQuoteModuleConfiguration(integrationConfiguration, merchantStore);
 
