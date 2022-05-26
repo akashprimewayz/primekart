@@ -163,8 +163,8 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>shopizer</finalName>
+		<finalName>ROOT</finalName>
 	</build>
 
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 </project>
