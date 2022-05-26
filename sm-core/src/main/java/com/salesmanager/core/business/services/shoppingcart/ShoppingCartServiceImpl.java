@@ -20,6 +20,8 @@ import com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -314,7 +316,11 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 		Long productId = item.getProductId();
 		product = productService.getById(productId);
-
+		
+		
+		if(product instanceof HibernateProxy) {
+			product = Hibernate.unproxy(product, Product.class);
+		}
 		if (product == null) {
 			item.setObsolete(true);
 			return;
