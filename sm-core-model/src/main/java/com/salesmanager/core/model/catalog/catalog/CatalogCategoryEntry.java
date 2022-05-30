@@ -60,6 +60,7 @@ public class CatalogCategoryEntry extends SalesManagerEntity<Long, CatalogCatego
     @Column(name = "VISIBLE")
     private boolean visible;
 
+    
 	public Category getCategory() {
 		return category;
 	}

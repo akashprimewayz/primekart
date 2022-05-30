@@ -27,13 +27,13 @@ import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.reference.currency.Currency;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.customer.PersistableCustomer;
-import com.salesmanager.shop.model.order.v1.PersistableAnonymousOrder;
-import com.salesmanager.shop.model.order.v1.PersistableOrder;
+import com.salesmanager.shop.model.order.v1.PersistableCustomAnonymousOrder;
+import com.salesmanager.shop.model.order.v1.PersistableCustomOrder;
 import com.salesmanager.shop.populator.customer.CustomerPopulator;
 import com.salesmanager.shop.utils.LocaleUtils;
 
 @Component
-public class PersistableOrderApiPopulator extends AbstractDataPopulator<PersistableOrder, Order> {
+public class PersistableCustomOrderApiPopulator extends AbstractDataPopulator<PersistableCustomOrder, Order> {
 
 	@Autowired
 	private CurrencyService currencyService;
@@ -52,7 +52,7 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 	private CustomerPopulator customerPopulator;
 
 	@Override
-	public Order populate(PersistableOrder order, Order target, MerchantStore store, Language language)
+	public Order populate(PersistableCustomOrder order, Order target, MerchantStore store, Language language)
 			throws ConversionException {
 
 		/*
@@ -98,8 +98,8 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 				}
 				target.setCustomerId(customerId);
 
-			} else if (order instanceof PersistableAnonymousOrder) {
-				final PersistableCustomer persistableCustomer = ((PersistableAnonymousOrder) order).getCustomer();
+			} else if (order instanceof PersistableCustomAnonymousOrder) {
+				final PersistableCustomer persistableCustomer = ((PersistableCustomAnonymousOrder) order).getCustomer();
 				customer = new Customer();
 				customer = customerPopulator.populate(persistableCustomer, customer, store, language);
 			} else {

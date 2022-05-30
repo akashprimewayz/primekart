@@ -2,7 +2,12 @@ package com.salesmanager.shop.model.store;
 
 import java.io.Serializable;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import com.salesmanager.shop.model.references.MeasureUnit;
 import com.salesmanager.shop.model.references.WeightUnit;
@@ -23,9 +28,17 @@ public class MerchantStoreEntity implements Serializable {
 	private String defaultLanguage;//code
 	private String currency;//code
 	private String inBusinessSince;
-	@NotNull
+
+	@Valid
+	@NotNull(message="Email filed is required.")
+	@NotBlank(message="Email filed is required.")
+	@Email
 	private String email;
-	@NotNull
+
+	@Valid
+	@NotEmpty(message="Phone number must be 10 digits")
+	@NotBlank
+	@Pattern(regexp="^\\(?\\+[0-9]{1,3}\\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\\w{1,10}\\s?\\d{1,6})?$")
 	private String phone;
 	private String template;
 	

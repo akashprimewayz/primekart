@@ -24,9 +24,14 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.MeasureUnit;
@@ -38,6 +43,8 @@ import com.salesmanager.core.model.reference.currency.Currency;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.core.utils.CloneUtils;
+
+import net.bytebuddy.implementation.bind.annotation.Empty;
 
 @Entity
 @Table(name = "MERCHANT_STORE")
@@ -105,6 +112,7 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 	private String storecity;
 
 	@NotEmpty
+	@Size(min=4)
 	@Column(name = "STORE_POSTAL_CODE", length = 15)
 	private String storepostalcode;
 
