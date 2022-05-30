@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -211,7 +210,8 @@ public class MerchantStoreApi {
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping(value = { "/private/store" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "POST", value = "Creates a new store", notes = "", response = ReadableMerchantStore.class)
-	public ResponseEntity<PersistableMerchantStore> create(@Valid @RequestBody PersistableMerchantStore store) {
+	public void create(@Valid @RequestBody PersistableMerchantStore store) {
+		
 		
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -219,10 +219,9 @@ public class MerchantStoreApi {
 		}
 		
 		userFacade.authorizedGroup(authenticatedUser, Stream.of("SUPERADMIN", "ADMIN_RETAILER").collect(Collectors.toList()));
-     
-		storeFacade.create(store);
+
 		
-		return new ResponseEntity<PersistableMerchantStore>( HttpStatus.CREATED);
+		storeFacade.create(store);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
@@ -353,7 +352,7 @@ public class MerchantStoreApi {
 	}
 
 
-                       
+
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping(value = { "/private/store/{code}" })
 	@ApiOperation(httpMethod = "DELETE", value = "Deletes a store", notes = "", response = Void.class)

@@ -39,85 +39,91 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 	private CurrencyService currencyService;
 	@Autowired
 	private CustomerService customerService;
-	/*
-	 * @Autowired private ShoppingCartService shoppingCartService;
-	 *
-	 * @Autowired private ProductService productService;
-	 *
-	 * @Autowired private ProductAttributeService productAttributeService;
-	 *
-	 * @Autowired private DigitalProductService digitalProductService;
-	 */
+/*	@Autowired
+	private ShoppingCartService shoppingCartService;
+	@Autowired
+	private ProductService productService;
+	@Autowired
+	private ProductAttributeService productAttributeService;
+	@Autowired
+	private DigitalProductService digitalProductService;*/
 	@Autowired
 	private CustomerPopulator customerPopulator;
+	
+	
+
+	
+
 
 	@Override
-	public Order populate(PersistableOrder order, Order target, MerchantStore store, Language language)
+	public Order populate(PersistableOrder source, Order target, MerchantStore store, Language language)
 			throws ConversionException {
+		
 
-		/*
-		 * Validate.notNull(currencyService,"currencyService must be set");
-		 * Validate.notNull(customerService,"customerService must be set");
-		 * Validate.notNull(shoppingCartService,"shoppingCartService must be set");
-		 * Validate.notNull(productService,"productService must be set");
-		 * Validate.notNull(
-		 * productAttributeService,"productAttributeService must be set");
-		 * Validate.notNull(digitalProductService,"digitalProductService must be set");
-		 */
-		Validate.notNull(order.getPayment(), "Payment cannot be null");
-
+/*		Validate.notNull(currencyService,"currencyService must be set");
+		Validate.notNull(customerService,"customerService must be set");
+		Validate.notNull(shoppingCartService,"shoppingCartService must be set");
+		Validate.notNull(productService,"productService must be set");
+		Validate.notNull(productAttributeService,"productAttributeService must be set");
+		Validate.notNull(digitalProductService,"digitalProductService must be set");*/
+		Validate.notNull(source.getPayment(),"Payment cannot be null");
+		
 		try {
-
-			if (target == null) {
+			
+			if(target == null) {
 				target = new Order();
 			}
-
-			// target.setLocale(LocaleUtils.getLocale(store));
+		
+			//target.setLocale(LocaleUtils.getLocale(store));
 
 			target.setLocale(LocaleUtils.getLocale(store));
-
+			
+			
 			Currency currency = null;
 			try {
-				currency = currencyService.getByCode(order.getCurrency());
-			} catch (final Exception e) {
-				throw new ConversionException("Currency not found for code " + order.getCurrency());
+				currency = currencyService.getByCode(source.getCurrency());
+			} catch(Exception e) {
+				throw new ConversionException("Currency not found for code " + source.getCurrency());
 			}
-
-			if (currency == null) {
-				throw new ConversionException("Currency not found for code " + order.getCurrency());
+			
+			if(currency==null) {
+				throw new ConversionException("Currency not found for code " + source.getCurrency());
 			}
-
-			// Customer
+			
+			//Customer
 			Customer customer = null;
-			if (order.getCustomerId() != null && order.getCustomerId().longValue() > 0) {
-				final Long customerId = order.getCustomerId();
-				customer = customerService.getById(customerId);
+			if(source.getCustomerId() != null && source.getCustomerId().longValue() >0) {
+			  Long customerId = source.getCustomerId();
+			  customer = customerService.getById(customerId);
 
-				if (customer == null) {
-					throw new ConversionException("Curstomer with id " + order.getCustomerId() + " does not exist");
-				}
-				target.setCustomerId(customerId);
-
-			} else if (order instanceof PersistableAnonymousOrder) {
-				final PersistableCustomer persistableCustomer = ((PersistableAnonymousOrder) order).getCustomer();
-				customer = new Customer();
-				customer = customerPopulator.populate(persistableCustomer, customer, store, language);
+			  if(customer == null) {
+				throw new ConversionException("Curstomer with id " + source.getCustomerId() + " does not exist");
+			  }
+			  target.setCustomerId(customerId);
+			
 			} else {
-				throw new ConversionException("Curstomer details or id not set in request");
+			  if(source instanceof PersistableAnonymousOrder) {
+			    PersistableCustomer persistableCustomer = ((PersistableAnonymousOrder)source).getCustomer();
+			    customer = new Customer();
+			    customer = customerPopulator.populate(persistableCustomer, customer, store, language);
+			  } else {
+			    throw new ConversionException("Curstomer details or id not set in request");
+			  } 
 			}
-
+			
+			
 			target.setCustomerEmailAddress(customer.getEmailAddress());
-
-			final Delivery delivery = customer.getDelivery();
+			
+			Delivery delivery = customer.getDelivery();
 			target.setDelivery(delivery);
-
-			final Billing billing = customer.getBilling();
+			
+			Billing billing = customer.getBilling();
 			target.setBilling(billing);
-
-			if (order.getAttributes() != null && order.getAttributes().size() > 0) {
-				final Set<OrderAttribute> attrs = new HashSet<>();
-				for (final com.salesmanager.shop.model.order.OrderAttribute attribute : order.getAttributes()) {
-					final OrderAttribute attr = new OrderAttribute();
+			
+			if(source.getAttributes() != null && source.getAttributes().size() > 0) {
+				Set<OrderAttribute> attrs = new HashSet<OrderAttribute>();
+				for(com.salesmanager.shop.model.order.OrderAttribute attribute : source.getAttributes()) {
+					OrderAttribute attr = new OrderAttribute();
 					attr.setKey(attribute.getKey());
 					attr.setValue(attribute.getValue());
 					attr.setOrder(target);
@@ -131,25 +137,26 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 			target.setCurrencyValue(new BigDecimal(0));
 			target.setMerchant(store);
 			target.setChannel(OrderChannel.API);
-			// need this
+			//need this
 			target.setStatus(OrderStatus.ORDERED);
-			target.setPaymentModuleCode(order.getPayment().getPaymentModule());
-			target.setPaymentType(PaymentType.valueOf(order.getPayment().getPaymentType()));
+			target.setPaymentModuleCode(source.getPayment().getPaymentModule());
+			target.setPaymentType(PaymentType.valueOf(source.getPayment().getPaymentType()));
+			
+			target.setCustomerAgreement(source.isCustomerAgreement());
+			target.setConfirmedAddress(true);//force this to true, cannot perform this activity from the API
 
-			target.setCustomerAgreement(order.isCustomerAgreement());
-			target.setConfirmedAddress(true);// force this to true, cannot perform this activity from the API
-
-			if (!StringUtils.isBlank(order.getComments())) {
-				final OrderStatusHistory statusHistory = new OrderStatusHistory();
+			
+			if(!StringUtils.isBlank(source.getComments())) {
+				OrderStatusHistory statusHistory = new OrderStatusHistory();
 				statusHistory.setStatus(null);
 				statusHistory.setOrder(target);
-				statusHistory.setComments(order.getComments());
+				statusHistory.setComments(source.getComments());
 				target.getOrderHistory().add(statusHistory);
 			}
-
+			
 			return target;
-
-		} catch (final Exception e) {
+		
+		} catch(Exception e) {
 			throw new ConversionException(e);
 		}
 	}
@@ -160,41 +167,55 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 		return null;
 	}
 
-	/*
-	 * public CurrencyService getCurrencyService() { return currencyService; }
-	 *
-	 * public void setCurrencyService(CurrencyService currencyService) {
-	 * this.currencyService = currencyService; }
-	 *
-	 * public CustomerService getCustomerService() { return customerService; }
-	 *
-	 * public void setCustomerService(CustomerService customerService) {
-	 * this.customerService = customerService; }
-	 *
-	 * public ShoppingCartService getShoppingCartService() { return
-	 * shoppingCartService; }
-	 *
-	 * public void setShoppingCartService(ShoppingCartService shoppingCartService) {
-	 * this.shoppingCartService = shoppingCartService; }
-	 *
-	 * public ProductService getProductService() { return productService; }
-	 *
-	 * public void setProductService(ProductService productService) {
-	 * this.productService = productService; }
-	 *
-	 * public ProductAttributeService getProductAttributeService() { return
-	 * productAttributeService; }
-	 *
-	 * public void setProductAttributeService(ProductAttributeService
-	 * productAttributeService) { this.productAttributeService =
-	 * productAttributeService; }
-	 *
-	 * public DigitalProductService getDigitalProductService() { return
-	 * digitalProductService; }
-	 *
-	 * public void setDigitalProductService(DigitalProductService
-	 * digitalProductService) { this.digitalProductService = digitalProductService;
-	 * }
-	 */
+
+/*	public CurrencyService getCurrencyService() {
+		return currencyService;
+	}
+
+	public void setCurrencyService(CurrencyService currencyService) {
+		this.currencyService = currencyService;
+	}
+
+	public CustomerService getCustomerService() {
+		return customerService;
+	}
+
+	public void setCustomerService(CustomerService customerService) {
+		this.customerService = customerService;
+	}
+
+	public ShoppingCartService getShoppingCartService() {
+		return shoppingCartService;
+	}
+
+	public void setShoppingCartService(ShoppingCartService shoppingCartService) {
+		this.shoppingCartService = shoppingCartService;
+	}
+
+	public ProductService getProductService() {
+		return productService;
+	}
+
+	public void setProductService(ProductService productService) {
+		this.productService = productService;
+	}
+
+	public ProductAttributeService getProductAttributeService() {
+		return productAttributeService;
+	}
+
+	public void setProductAttributeService(ProductAttributeService productAttributeService) {
+		this.productAttributeService = productAttributeService;
+	}
+
+	public DigitalProductService getDigitalProductService() {
+		return digitalProductService;
+	}
+
+	public void setDigitalProductService(DigitalProductService digitalProductService) {
+		this.digitalProductService = digitalProductService;
+	}*/
+
+
 
 }

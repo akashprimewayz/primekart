@@ -112,7 +112,7 @@ public class UserApi {
 			@ApiIgnore MerchantStore merchantStore, 
 			@ApiIgnore Language language,
 			@Valid @RequestBody PersistableUser user, HttpServletRequest request) {
-		/** Must be superadmin or admin */                      
+		/** Must be superadmin or admin */
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
 			throw new UnauthorizedException();

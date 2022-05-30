@@ -2,10 +2,6 @@ package com.salesmanager.shop.model.references;
 
 import java.io.Serializable;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-
 public class Address implements Serializable {
 
 	/**

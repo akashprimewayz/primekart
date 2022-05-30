@@ -39,7 +39,7 @@ import springfox.documentation.annotations.ApiIgnore;
 /**
  * This API is for payment modules configurations. For payment of orders see
  * order
- *
+ * 
  * @author carlsamson
  *
  */
@@ -57,7 +57,7 @@ public class PaymentApi {
 
 	/**
 	 * Get available payment modules
-	 *
+	 * 
 	 * @param merchantStore
 	 * @param language
 	 * @return
@@ -73,11 +73,11 @@ public class PaymentApi {
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
 
 			// configured modules
-			final Map<String, IntegrationConfiguration> configuredModules = paymentService
+			Map<String, IntegrationConfiguration> configuredModules = paymentService
 					.getPaymentModulesConfigured(merchantStore);
 			return modules.stream().map(m -> integrationModule(m, configuredModules)).collect(Collectors.toList());
 
-		} catch (final ServiceException e) {
+		} catch (ServiceException e) {
 			LOGGER.error("Error getting payment modules", e);
 			throw new ServiceRuntimeException("Error getting payment modules", e);
 		}
@@ -85,39 +85,42 @@ public class PaymentApi {
 	}
 
 	@PostMapping(value = "/private/modules/payment")
-	public void configure(@RequestBody IntegrationModuleConfiguration configuration,
+	public void configure(
+			@RequestBody IntegrationModuleConfiguration configuration,
 			@ApiIgnore MerchantStore merchantStore) {
-
+		
 		try {
-
-			final List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
-
-			final Map<String, IntegrationModule> map = modules.stream()
-					.collect(Collectors.toMap(IntegrationModule::getCode, module -> module));
-
-			final IntegrationModule config = map.get(configuration.getCode());
+			
+			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
+			
+		    Map<String, IntegrationModule> map = modules.stream()
+		    	      .collect(Collectors.toMap(IntegrationModule::getCode, module -> module));
+		    
+		    IntegrationModule config = map.get(configuration.getCode());
 
 			if (config == null) {
 				throw new ResourceNotFoundException("Payment module [" + configuration.getCode() + "] not found");
 			}
-
-			final Map<String, IntegrationConfiguration> configuredModules = paymentService
+			
+			Map<String, IntegrationConfiguration> configuredModules = paymentService
 					.getPaymentModulesConfigured(merchantStore);
-
+			
 			IntegrationConfiguration integrationConfiguration = configuredModules.get(configuration.getCode());
-
-			if (integrationConfiguration == null) {
+			
+			if(integrationConfiguration == null) {
 				integrationConfiguration = new IntegrationConfiguration();
 				integrationConfiguration.setModuleCode(configuration.getCode());
 			}
+
 
 			integrationConfiguration.setActive(configuration.isActive());
 			integrationConfiguration.setDefaultSelected(configuration.isDefaultSelected());
 			integrationConfiguration.setIntegrationKeys(configuration.getIntegrationKeys());
 			integrationConfiguration.setIntegrationOptions(configuration.getIntegrationOptions());
 
+			
 			paymentService.savePaymentModuleConfiguration(integrationConfiguration, merchantStore);
-		} catch (final ServiceException e) {
+		} catch (ServiceException e) {
 			LOGGER.error("Error getting payment modules", e);
 			throw new ServiceRuntimeException("Error saving payment module", e);
 		}
@@ -126,7 +129,7 @@ public class PaymentApi {
 
 	/**
 	 * Get merchant payment module details
-	 *
+	 * 
 	 * @param code
 	 * @param merchantStore
 	 * @param language
@@ -141,9 +144,9 @@ public class PaymentApi {
 		try {
 
 			// configured modules
-			final Map<String, IntegrationConfiguration> configuredModules = paymentService
+			Map<String, IntegrationConfiguration> configuredModules = paymentService
 					.getPaymentModulesConfigured(merchantStore);
-			final IntegrationConfiguration config = configuredModules.get(code);
+			IntegrationConfiguration config = configuredModules.get(code);
 			if (config == null) {
 				throw new ResourceNotFoundException("Payment module [" + code + "] not found");
 			}
@@ -152,7 +155,7 @@ public class PaymentApi {
 			 * Build return object for now this is a read copy
 			 */
 
-			final IntegrationModuleConfiguration returnConfig = new IntegrationModuleConfiguration();
+			IntegrationModuleConfiguration returnConfig = new IntegrationModuleConfiguration();
 			returnConfig.setActive(config.isActive());
 			returnConfig.setDefaultSelected(config.isDefaultSelected());
 			returnConfig.setCode(code);
@@ -161,7 +164,7 @@ public class PaymentApi {
 
 			return returnConfig;
 
-		} catch (final ServiceException e) {
+		} catch (ServiceException e) {
 			LOGGER.error("Error getting payment module [" + code + "]", e);
 			throw new ServiceRuntimeException("Error getting payment module [" + code + "]", e);
 		}
@@ -178,7 +181,7 @@ public class PaymentApi {
 		readable.setImage(module.getImage());
 		if (configuredModules.containsKey(module.getCode())) {
 			readable.setConfigured(true);
-			if (configuredModules.get(module.getCode()).isActive()) {
+			if(configuredModules.get(module.getCode()).isActive()) {
 				readable.setActive(true);
 			}
 		}

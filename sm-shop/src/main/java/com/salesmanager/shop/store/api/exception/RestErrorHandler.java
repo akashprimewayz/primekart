@@ -42,8 +42,6 @@ public class RestErrorHandler {
                 exception.getLocalizedMessage());
         return errorEntity;
     }
-    
-  
 
     @RequestMapping(produces = "application/json")
     @ExceptionHandler(ConversionRuntimeException.class)

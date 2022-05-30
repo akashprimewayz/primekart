@@ -338,7 +338,6 @@ public class UserFacadeImpl implements UserFacade {
 			}
 			userModel.setAdminPassword(newPasswordEncoded);
 			userService.saveOrUpdate(userModel);
-			
 			// now build returned object
 			User createdUser = userService.getById(userModel.getId());
 			return convertUserToReadableUser(createdUser.getDefaultLanguage(), createdUser);

@@ -81,7 +81,7 @@ public class OrderPaymentApi {
 
 	@Inject
 	private OrderFacade orderFacade;
-
+	
 	@Inject
 	private AuthorizationUtils authorizationUtils;
 
@@ -92,22 +92,22 @@ public class OrderPaymentApi {
 	public ReadableTransaction init(@Valid @RequestBody PersistablePayment payment, @PathVariable String code,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws Exception {
 
-		final ShoppingCart cart = shoppingCartService.getByCode(code, merchantStore);
+		ShoppingCart cart = shoppingCartService.getByCode(code, merchantStore);
 		if (cart == null) {
 			throw new ResourceNotFoundException("Cart code " + code + " does not exist");
 		}
 
-		final PersistablePaymentPopulator populator = new PersistablePaymentPopulator();
+		PersistablePaymentPopulator populator = new PersistablePaymentPopulator();
 		populator.setPricingService(pricingService);
 
-		final Payment paymentModel = new Payment();
+		Payment paymentModel = new Payment();
 
 		populator.populate(payment, paymentModel, merchantStore, language);
 
-		final Transaction transactionModel = paymentService.initTransaction(null, paymentModel, merchantStore);
+		Transaction transactionModel = paymentService.initTransaction(null, paymentModel, merchantStore);
 
-		final ReadableTransaction transaction = new ReadableTransaction();
-		final ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
+		ReadableTransaction transaction = new ReadableTransaction();
+		ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
 		trxPopulator.setOrderService(orderService);
 		trxPopulator.setPricingService(pricingService);
 
@@ -126,17 +126,17 @@ public class OrderPaymentApi {
 			HttpServletResponse response) throws Exception {
 
 		try {
-			final Principal principal = request.getUserPrincipal();
-			final String userName = principal.getName();
+			Principal principal = request.getUserPrincipal();
+			String userName = principal.getName();
 
-			final Customer customer = customerService.getByNick(userName);
+			Customer customer = customerService.getByNick(userName);
 
 			if (customer == null) {
 				response.sendError(401, "Error while initializing the payment customer not authorized");
 				return null;
 			}
 
-			final ShoppingCart cart = shoppingCartService.getByCode(code, merchantStore);
+			ShoppingCart cart = shoppingCartService.getByCode(code, merchantStore);
 			if (cart == null) {
 
 				throw new ResourceNotFoundException("Cart code " + code + " does not exist");
@@ -152,17 +152,17 @@ public class OrderPaymentApi {
 				return null;
 			}
 
-			final PersistablePaymentPopulator populator = new PersistablePaymentPopulator();
+			PersistablePaymentPopulator populator = new PersistablePaymentPopulator();
 			populator.setPricingService(pricingService);
 
-			final Payment paymentModel = new Payment();
+			Payment paymentModel = new Payment();
 
 			populator.populate(payment, paymentModel, merchantStore, language);
 
-			final Transaction transactionModel = paymentService.initTransaction(customer, paymentModel, merchantStore);
+			Transaction transactionModel = paymentService.initTransaction(customer, paymentModel, merchantStore);
 
-			final ReadableTransaction transaction = new ReadableTransaction();
-			final ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
+			ReadableTransaction transaction = new ReadableTransaction();
+			ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
 			trxPopulator.setOrderService(orderService);
 			trxPopulator.setPricingService(pricingService);
 
@@ -170,11 +170,11 @@ public class OrderPaymentApi {
 
 			return transaction;
 
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			LOGGER.error("Error while initializing the payment", e);
 			try {
 				response.sendError(503, "Error while initializing the payment " + e.getMessage());
-			} catch (final Exception ignore) {
+			} catch (Exception ignore) {
 			}
 			return null;
 		}
@@ -184,40 +184,47 @@ public class OrderPaymentApi {
 	@ResponseStatus(HttpStatus.OK)
 
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
+	@ApiImplicitParams({ 
+		    @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public String nextTransaction(@PathVariable final Long id, @ApiIgnore MerchantStore merchantStore,
+	public String nextTransaction(
+			@PathVariable final Long id, 
+			@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
 
-		final String user = authorizationUtils.authenticatedUser();
+		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
 				Constants.GROUP_ADMIN_ORDER, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
 
-		final TransactionType transactionType = orderFacade.nextTransaction(id, merchantStore);
+		TransactionType transactionType = orderFacade.nextTransaction(id, merchantStore);
 		return "{\"transactionType\":\"" + transactionType.name() + "\"}";
 
 	}
-
+	
 	@RequestMapping(value = { "/private/orders/{id}/payment/transactions" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
+	@ApiImplicitParams({ 
+		    @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public List<ReadableTransaction> listTransactions(@PathVariable final Long id,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+	public List<ReadableTransaction> listTransactions(
+			@PathVariable final Long id, 
+			@ApiIgnore MerchantStore merchantStore,
+			@ApiIgnore Language language) {
 
-		final String user = authorizationUtils.authenticatedUser();
+		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
 				Constants.GROUP_ADMIN_ORDER, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
 
 		return orderFacade.listTransactions(id, merchantStore);
 
 	}
 
 	/**
-	 * An order can be pre-authorized but un captured. This metho returns all order
-	 * subject to be capturable For a given time frame
+	 * An order can be pre-authorized but un captured. This metho returns all
+	 * order subject to be capturable For a given time frame
 	 *
 	 * @param startDate
 	 * @param endDate
@@ -241,7 +248,7 @@ public class OrderPaymentApi {
 
 			// if startdate or enddate are null use default range (last 24
 			// hours) DD-1 to DD
-			final Calendar cal = Calendar.getInstance();
+			Calendar cal = Calendar.getInstance();
 			Date sDate = null;
 
 			if (startDate != null) {
@@ -259,16 +266,15 @@ public class OrderPaymentApi {
 				eDate = new Date();
 			}
 
-			final ReadableOrderList returnList = orderFacade.getCapturableOrderList(merchantStore, sDate, eDate,
-					language);
+			ReadableOrderList returnList = orderFacade.getCapturableOrderList(merchantStore, sDate, eDate, language);
 
 			return returnList;
 
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			LOGGER.error("Error while getting capturable payments", e);
 			try {
 				response.sendError(503, "Error while getting capturable payments " + e.getMessage());
-			} catch (final Exception ignore) {
+			} catch (Exception ignore) {
 			}
 			return null;
 		}
@@ -292,26 +298,27 @@ public class OrderPaymentApi {
 			@ApiIgnore Language language) {
 		/*
 		 * try {
-		 *
+		 * 
 		 * // need order Order order = orderService.getById(id);
-		 *
+		 * 
 		 * if (order == null) { response.sendError(404, "Order id " + id +
 		 * " does not exist"); return null; }
-		 *
+		 * 
 		 * // need customer Customer customer =
 		 * customerService.getById(order.getCustomerId());
-		 *
+		 * 
 		 * if (customer == null) { response.sendError(404, "Order id " + id +
-		 * " contains an invalid customer " + order.getCustomerId()); return null; }
-		 *
-		 * ReadableTransaction transaction = orderFacade.captureOrder(merchantStore,
-		 * order, customer, language);
-		 *
+		 * " contains an invalid customer " + order.getCustomerId()); return
+		 * null; }
+		 * 
+		 * ReadableTransaction transaction =
+		 * orderFacade.captureOrder(merchantStore, order, customer, language);
+		 * 
 		 * return transaction;
-		 *
-		 * } catch (Exception e) { LOGGER.error("Error while capturing payment", e); try
-		 * { response.sendError(503, "Error while capturing payment " + e.getMessage());
-		 * } catch (Exception ignore) { } return null; }
+		 * 
+		 * } catch (Exception e) { LOGGER.error("Error while capturing payment",
+		 * e); try { response.sendError(503, "Error while capturing payment " +
+		 * e.getMessage()); } catch (Exception ignore) { } return null; }
 		 */
 
 		return null;
@@ -319,7 +326,7 @@ public class OrderPaymentApi {
 
 	/**
 	 * Refund payment
-	 *
+	 * 
 	 * @param id
 	 * @param merchantStore
 	 * @param language
@@ -337,7 +344,7 @@ public class OrderPaymentApi {
 
 	/**
 	 * Capture payment
-	 *
+	 * 
 	 * @param id
 	 * @param merchantStore
 	 * @param language
