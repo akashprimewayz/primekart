@@ -2,16 +2,20 @@ package com.salesmanager.shop.model.store;
 
 import java.io.Serializable;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import com.salesmanager.shop.model.references.MeasureUnit;
 import com.salesmanager.shop.model.references.WeightUnit;
 
-public class MerchantStoreEntity implements Serializable {
-	
+public class MerchantStoreCustomEntity implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	private int id;
@@ -20,21 +24,28 @@ public class MerchantStoreEntity implements Serializable {
 	@NotNull
 	private String name;
 
-	private String defaultLanguage;//code
-	private String currency;//code
+	private String defaultLanguage;// code
+	private String currency;// code
 	private String inBusinessSince;
+
+	@Valid
 	@NotNull
+	@NotBlank
+	@Email
 	private String email;
-	@NotNull
+
+	@Valid
+	@NotEmpty
+	@NotBlank
+	@Pattern(regexp = "^\\(?\\+[0-9]{1,3}\\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\\w{1,10}\\s?\\d{1,6})?$")
 	private String phone;
 	private String template;
-	
+
 	private boolean useCache;
 	private boolean currencyFormatNational;
 	private boolean retailer;
 	private MeasureUnit dimension;
 	private WeightUnit weight;
-	
 
 	public int getId() {
 		return id;
@@ -147,6 +158,5 @@ public class MerchantStoreEntity implements Serializable {
 	public void setRetailer(boolean retailer) {
 		this.retailer = retailer;
 	}
-
 
 }
