@@ -21,7 +21,7 @@ import org.apache.commons.lang3.Validate;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.paytm.merchant.models.SDKResponse;
 import com.paytm.pg.merchant.PaytmChecksum;
@@ -49,13 +49,28 @@ import com.stripe.model.Refund;
 
 public class PaytmPayment implements PaymentModuleCustom {
 
-	@Autowired
-	private PaytmPaymentCustomPropertyConfig paytmPaymentCustomPropertyConfig;
-
 	@Inject
 	private ProductPriceUtils productPriceUtils;
 
 	private final static String TRANSACTION = "Transaction";
+
+	@Value("${custom.paytm.mid}")
+	private String midkey;
+
+	@Value("${custom.paytm.key}")
+	private String secretkey;
+
+	@Value("${custom.paytm.website}")
+	private String website;
+
+	@Value("${custom.paytm.clientid}")
+	private String clientid;
+
+	@Value("${custom.paytm.callbackUrl}")
+	private String callbackUrl;
+
+	@Value("${custom.paytm.stagingUrl}")
+	private String stagingUrl;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StripePayment.class);
 
@@ -68,12 +83,16 @@ public class PaytmPayment implements PaymentModuleCustom {
 		final Map<String, String> keys = integrationConfiguration.getIntegrationKeys();
 
 		// validate integrationKeys['secretKey']
+		System.out.println(keys.get("secretKey"));
+
 		if (keys == null || StringUtils.isBlank(keys.get("secretKey"))) {
 			errorFields = new ArrayList<>();
 			errorFields.add("secretKey");
 		}
 
 		// validate integrationKeys['publishableKey']
+
+		System.out.println(keys.get("publishableKey"));
 		if (keys == null || StringUtils.isBlank(keys.get("publishableKey"))) {
 			if (errorFields == null) {
 				errorFields = new ArrayList<>();
@@ -254,6 +273,7 @@ public class PaytmPayment implements PaymentModuleCustom {
 		transaction.setTransactionDate(new Date());
 		transaction.setTransactionType(TransactionType.AUTHORIZECAPTURE);
 		transaction.setPaymentType(PaymentType.CREDITCARD);
+		System.out.println("Token is = " + token);
 		final JSONObject paytmResponseParams = new JSONObject(token);
 		final JSONObject paytmResponseBody = (JSONObject) paytmResponseParams.get("body");
 		transaction.getTransactionDetails().put("INITIATETRANSACTIONID", paytmResponseBody.getString("txnToken"));
@@ -532,16 +552,24 @@ public class PaytmPayment implements PaymentModuleCustom {
 //		final String website = "WEBSTAGING";
 		/* Client Id e.g C11 */
 
+		// mid=publisablekey
+		// secretkey=key
+
+		System.out.println(midkey);
+		final Map<String, String> keys = configuration.getIntegrationKeys();
+		System.out.println(keys.get("secretKey"));
+		System.out.println(keys.get("publishableKey"));
+
 		final JSONObject paytmParams = new JSONObject();
 
 		final JSONObject body = new JSONObject();
 		body.put("requestType", "Payment");
-		body.put("mid", paytmPaymentCustomPropertyConfig.getMid());
-		body.put("websiteName", paytmPaymentCustomPropertyConfig.getWebsite());
+		body.put("mid", keys.get("publishableKey").trim());
+		body.put("websiteName", website);
 		body.put("orderId", order.getId());
 		// body.put("callbackUrl",
 		// "http://localhost:8080/api/v1/paytm/processOrderAfterPayment");
-		body.put("callbackUrl", paytmPaymentCustomPropertyConfig.getCallbackUrl());
+		body.put("callbackUrl", callbackUrl);
 
 		final JSONObject txnAmount = new JSONObject();
 		txnAmount.put("value", amount);
@@ -569,8 +597,7 @@ public class PaytmPayment implements PaymentModuleCustom {
 
 		try {
 
-			final String checksum = PaytmChecksum.generateSignature(body.toString(),
-					paytmPaymentCustomPropertyConfig.getKey());
+			final String checksum = PaytmChecksum.generateSignature(body.toString(), keys.get("secretKey").trim());
 
 			final JSONObject head = new JSONObject();
 			head.put("signature", checksum);
@@ -581,9 +608,9 @@ public class PaytmPayment implements PaymentModuleCustom {
 			final String post_data = paytmParams.toString();
 			System.out.println("post_dataRequest" + post_data);
 			/* for Staging */
-			final URL url = new URL("https://securegw-stage.paytm.in/theia/api/v1/initiateTransaction?mid="
-					+ paytmPaymentCustomPropertyConfig.getMid() + "&orderId=" + order.getId());
+			final URL url = new URL(stagingUrl + keys.get("publishableKey").trim() + "&orderId=" + order.getId());
 
+			System.out.println("Url= " + url);
 			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
 			connection.setRequestMethod("POST");
