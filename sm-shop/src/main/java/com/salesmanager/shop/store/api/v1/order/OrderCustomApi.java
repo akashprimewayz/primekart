@@ -1,53 +1,29 @@
 package com.salesmanager.shop.store.api.v1.order;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.Principal;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.salesmanager.core.business.services.order.OrderService;
-import com.salesmanager.core.business.services.payments.TransactionService;
-import com.salesmanager.core.model.order.orderstatus.OrderStatus;
-import com.salesmanager.core.model.payments.Payment;
-import com.salesmanager.core.model.payments.Transaction;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
-import org.jsoup.helper.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.paytm.pg.constants.LibraryConstants;
-import com.paytm.pg.merchant.PaytmChecksum;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.merchant.MerchantStoreService;
@@ -60,28 +36,12 @@ import com.salesmanager.core.model.order.Order;
 import com.salesmanager.core.model.payments.Transaction;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
-import com.salesmanager.core.model.system.IntegrationConfiguration;
-import com.salesmanager.core.model.system.IntegrationModule;
-import com.salesmanager.shop.constants.Constants;
-import com.salesmanager.shop.model.customer.PersistableCustomer;
-import com.salesmanager.shop.model.customer.ReadableCustomer;
-import com.salesmanager.shop.model.order.v0.ReadableOrder;
-import com.salesmanager.shop.model.order.v0.ReadableOrderList;
 import com.salesmanager.shop.model.order.v1.PaytmPaymentResponse;
 import com.salesmanager.shop.model.order.v1.PersistableCustomOrder;
 import com.salesmanager.shop.model.order.v1.ReadableOrderConfirmation;
 import com.salesmanager.shop.model.shoppingcart.ReadableShoppingCart;
-import com.salesmanager.shop.populator.customer.ReadableCustomerPopulator;
-import com.salesmanager.shop.store.api.exception.GenericRuntimeException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
-import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
-import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
-import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.store.controller.order.facade.OrderFacadeCustom;
-import com.salesmanager.shop.store.security.services.CredentialsException;
-import com.salesmanager.shop.store.security.services.CredentialsService;
-import com.salesmanager.shop.utils.AuthorizationUtils;
-import com.salesmanager.shop.utils.LocaleUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -98,8 +58,8 @@ public class OrderCustomApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OrderCustomApi.class);
 
-	@Autowired
-	private OrderCustomApiPropertyConfig orderCustomApiPropertyConfig;
+	@Value("$(custom.url)")
+	private String url;
 
 	@Inject
 	private CustomerService customerService;
@@ -121,21 +81,7 @@ public class OrderCustomApi {
 	private ShoppingCartService shoppingCartService;
 
 	@Autowired
-	private CustomerFacade customerFacade;
-
-	@Autowired
-	private CustomerFacade customerFacadev1; //v1 version
-
-	@Inject
-	private AuthorizationUtils authorizationUtils;
-
-	@Inject
-	private CredentialsService credentialsService;
-
-	@Autowired
 	private MerchantStoreService merchantStoreService;
-	
-	private static final String DEFAULT_ORDER_LIST_COUNT = "25";
 
 	@RequestMapping(value = { "/auth/cart/{code}/paytmCode" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
@@ -235,9 +181,9 @@ public class OrderCustomApi {
 			orderFacadeV1.orderConfirmation(modelOrder, customer, store, customer.getDefaultLanguage());
 
 			if (paytmPaymentResponse.getSTATUS().equalsIgnoreCase("TXN_FAILURE")) {
-				response.sendRedirect(orderCustomApiPropertyConfig.getUrl()); // "http://localhost:3000/order-confirm"
+				response.sendRedirect(url); // "http://localhost:3000/order-confirm"
 			}
-			response.sendRedirect(orderCustomApiPropertyConfig.getUrl()); // "http://localhost:3000/order-confirm"
+			response.sendRedirect(url); // "http://localhost:3000/order-confirm"
 		} catch (final IOException | ServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
