@@ -82,7 +82,11 @@ public class AuthenticateCustomerCustomApi {
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws Exception {
 
 		customer.setUserName(customer.getEmailAddress());
-		customer.getBilling().setCountry("IN");
+
+		if (merchantStore != null && merchantStore.getCountry() != null
+				&& merchantStore.getCountry().getIsoCode() != null) {
+			customer.getBilling().setCountry(merchantStore.getCountry().getIsoCode());
+		}
 		if (customerFacade.checkIfUserExists(customer.getUserName(), merchantStore)) {
 			// 409 Conflict
 			throw new GenericRuntimeException("409",
@@ -91,7 +95,7 @@ public class AuthenticateCustomerCustomApi {
 
 		Validate.notNull(customer.getUserName(), "Username cannot be null");
 		Validate.notNull(customer.getBilling(), "Requires customer Country code");
-		Validate.notNull(customer.getBilling().getCountry(), "Requires customer Country code");
+		Validate.notNull(customer.getBilling().getCountry(), "Country code not found");
 
 		customerFacade.registerCustomer(customer, merchantStore, language);
 
