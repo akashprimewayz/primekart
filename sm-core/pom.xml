@@ -30,6 +30,13 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -198,35 +205,35 @@
 			<groupId>com.stripe</groupId>
 			<artifactId>stripe-java</artifactId>
 		</dependency>
-		
+
 		<!-- Paytm -->
 		<dependency>
-		        <groupId>com.paytm.pg</groupId>
-		        <artifactId>paytm-pg</artifactId>
+			<groupId>com.paytm.pg</groupId>
+			<artifactId>paytm-pg</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.servlet</groupId>
 					<artifactId>servlet-api</artifactId>
 				</exclusion>
-	                <exclusion>
-	                    <groupId>org.hibernate</groupId>
-	                    <artifactId>hibernate-validator</artifactId>
-	                </exclusion>				
-			</exclusions>    
+				<exclusion>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-validator</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-		
-			<dependency>
-			    <groupId>com.paytm</groupId>
-			    <artifactId>paytm-checksum</artifactId>
-			    <version>1.2.0</version>
-			</dependency>
-			
-			<dependency>
-			    <groupId>com.paytm</groupId>
-			    <artifactId>paytm-checksum</artifactId>
-			    <version>1.2.0</version>
-			</dependency>			
-					
+
+		<dependency>
+			<groupId>com.paytm</groupId>
+			<artifactId>paytm-checksum</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.paytm</groupId>
+			<artifactId>paytm-checksum</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+
 		<!-- Braintree -->
 		<dependency>
 			<groupId>com.braintreepayments.gateway</groupId>
@@ -279,6 +286,16 @@
 					<artifactId>guava</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 
